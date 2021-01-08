@@ -1,0 +1,8 @@
+# Game Performance
+MAX_DISPLAY_AST = 100
+
+# Control Game hard
+HARD_ACC_TIME_SEP = 10000
+HARD_AST_ACC = 0.2
+HARD_SHIP_ACC = 0.08
+HARD_TILT_ACC = 0.05

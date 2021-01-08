@@ -1,0 +1,16 @@
+.DS_Store
+*.pdf
+bin
+*.exe
+*.out
+*.o
+.vscode
+*.zip
+*.ppt*
+*.mp4
+glm
+*.mtl
+*.obj
+__pycache__
+*.pyc
+materials
