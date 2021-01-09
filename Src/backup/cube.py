@@ -3,8 +3,8 @@ import OpenGL.GL as gl
 class Cube(object):
     """Class for making a cube"""
 
-    def __init__(self, size, position, color, visible=True):
-        self.position = position
+    def __init__(self, size, pos, color, visible=True):
+        self.pos = pos
         self.size = size
         self.color = color
         self.visible = visible
@@ -18,9 +18,9 @@ class Cube(object):
 
     def render(self):
         """Drawing a cube"""
-        x = self.position[0]
-        y = self.position[1]
-        z = self.position[2]
+        x = self.pos[0]
+        y = self.pos[1]
+        z = self.pos[2]
         v = self.visible
 
         gl.glPushMatrix()
