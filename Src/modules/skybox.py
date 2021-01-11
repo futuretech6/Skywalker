@@ -9,7 +9,6 @@ class Skybox(object):
         self.width = screen_width
         self.height = screen_height
         self.skybox = []
-        self.sky_pos = [0.0, 0.0, 0.0]
         self.sky_planes = [
             [(-100, 100, 100), (100, 100, 100),
              (100, 100, -100), (-100, 100, -100)],  # Front
@@ -32,13 +31,13 @@ class Skybox(object):
                               [(0, 1), (1, 1), (1, 0), (0, 0)],
                               [(0, 1), (1, 1), (1, 0), (0, 0)]]
 
-    def render(self):
+    def render(self, camera):
         """Drawing skybox"""
         gl.glPushMatrix()
         gl.glDisable(gl.GL_CULL_FACE)
         gl.glDisable(gl.GL_DEPTH_TEST)
         gl.glEnable(gl.GL_TEXTURE_2D)
-        gl.glTranslatef(*self.sky_pos)
+        gl.glTranslatef(camera.eyex, camera.eyey, camera.eyez)
         for i in range(len(self.sky_planes)):
             gl.glBindTexture(gl.GL_TEXTURE_2D, self.skybox[i])
             gl.glBegin(gl.GL_QUADS)

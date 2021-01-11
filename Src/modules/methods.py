@@ -93,7 +93,7 @@ def load_texture(path):
 #         obj.pos[2] += speed * d_time
 
 
-def ship_movement(ship, ship_speed, tilt_speed, delta_time, x_limit=SCENE_SIZE_LIMIT, z_limit=SCENE_SIZE_LIMIT):
+def ship_update(ship, ship_speed, tilt_speed, delta_time, x_limit=SCENE_SIZE_LIMIT, z_limit=SCENE_SIZE_LIMIT):
     keys = pygame.key.get_pressed()
     if keys[pygame.K_a]:
         if ship.pos[0] > -x_limit:
