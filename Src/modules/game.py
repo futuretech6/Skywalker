@@ -98,7 +98,7 @@ class Game(object):
                     """ Keyboard(Not Controller) """
                     if e.key == pygame.K_ESCAPE or e.key == pygame.K_q:
                         method.quit_program()
-                    elif e.key == pygame.K_r and self.paused:
+                    elif e.key == pygame.K_r:
                         self.isRoaming = not self.isRoaming
                     elif e.key == pygame.K_v:
                         self.fps_view = not self.fps_view
@@ -183,7 +183,7 @@ class Game(object):
         gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
         gl.glMatrixMode(gl.GL_PROJECTION)
         gl.glLoadIdentity()
-        glu.gluPerspective(110, self.win_w / self.win_h, 0.1, 10000)
+        glu.gluPerspective(VIEW_ANGLE, self.win_w / self.win_h, 0.1, 10000)
 
         if self.isRoaming:
             ctx = self.camera.eyex + sin(self.camera.polarAngle * D2R) * cos(self.camera.azimuthAngle * D2R)
@@ -252,9 +252,9 @@ class Game(object):
                 ast.pos[0] = random.randint(
                     (int)(self.ship.pos[0])-AST_RANGE, (int)(self.ship.pos[0])+AST_RANGE)
                 ast.pos[1] = random.randint(
-                    self.ship.pos[1]+AST_Y_MIN_INIT, self.ship.pos[1]+AST_Y_MAX_INIT)
+                    (int)(self.ship.pos[1])+AST_Y_MIN_INIT, (int)(self.ship.pos[1])+AST_Y_MAX_INIT)
                 ast.pos[2] = random.randint(
-                    self.ship.pos[2]-AST_RANGE, self.ship.pos[2]+AST_RANGE)
+                    (int)(self.ship.pos[2])-AST_RANGE, (int)(self.ship.pos[2])+AST_RANGE)
             else:
                 ast.pos[1] -= speed * delta_time * 0.1
             ast.render()
