@@ -1,5 +1,3 @@
-"""Module for loading objects from Blender and it's appropriate texture"""
-
 import OpenGL.GL as gl
 import numpy as np
 from modules.methods import load_texture
@@ -19,8 +17,12 @@ def material(filename):
             mtl = contents[values[1]] = {}
         elif mtl is None:
             raise ValueError("mtl does not start with newmtl")
-        elif values[0] == 'map_Kd' or values[0] == 'map_Ka':
+        elif values[0] == 'map_Kd':
             mtl['texture_Kd'] = load_texture(values[1])
+        elif values[0] == 'map_Ka':
+            mtl['texture_Ka'] = load_texture(values[1])
+        elif values[0] == 'map_Ks':
+            mtl['texture_Ks'] = load_texture(values[1])
         else:
             mtl[values[0]] = list(map(float, values[1:]))
     return contents
@@ -81,6 +83,10 @@ class OBJ(object):
             mtl = self.mtl[mat]
             if 'texture_Kd' in mtl:
                 gl.glBindTexture(gl.GL_TEXTURE_2D, mtl['texture_Kd'])
+            elif 'texture_Ka' in mtl:
+                gl.glBindTexture(gl.GL_TEXTURE_2D, mtl['texture_Ka'])
+            elif 'texture_Ks' in mtl:
+                gl.glBindTexture(gl.GL_TEXTURE_2D, mtl['texture_Ks'])
             else:
                 gl.glColor3f(*mtl['Kd'])
             gl.glBegin(gl.GL_TRIANGLES)

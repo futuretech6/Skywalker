@@ -14,7 +14,6 @@ class Light(object):
         gl.glLightfv(gl.GL_LIGHT0, gl.GL_DIFFUSE, self.intensity)
         gl.glLightfv(gl.GL_LIGHT0, gl.GL_CONSTANT_ATTENUATION, 0.1)
         gl.glLightfv(gl.GL_LIGHT0, gl.GL_LINEAR_ATTENUATION, 0.05)
-        # Ovo ispod je za reflektirajuće svjetlo
         if self.enable_specular:
             gl.glMaterialfv(gl.GL_FRONT_AND_BACK, gl.GL_SPECULAR,
                             self.specular_intensity)

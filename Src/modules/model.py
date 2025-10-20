@@ -3,7 +3,7 @@ from modules.objLoader import OBJ
 
 class Model(object):
     """Loading asteroids with objLoader module"""
-    def __init__(self, filename, objsize, pos, rot_x=0, rot_y=0, rot_z=0, using_left=False, jiggle_speed=[0,0,0], rot_speed=0):
+    def __init__(self, filename, objsize, pos, rot_x=0, rot_y=0, rot_z=0, using_left=False, move_speed=[0,0,0], rot_speed=0):
         self.obj = OBJ(filename, objsize)
         self.radius = self.obj.max_vert()
         self.pos = pos[:]
@@ -13,7 +13,7 @@ class Model(object):
         self.rot_x = rot_x
         self.rot_y = rot_y
         self.rot_z = rot_z
-        self.jiggle_speed = jiggle_speed[:]
+        self.move_speed = move_speed[:]
         self.rot_speed = rot_speed
         self.rot_angle = 0
         self.using_left = using_left

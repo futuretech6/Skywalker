@@ -63,14 +63,6 @@ class Game(object):
         # self.ship = Model("Starship.obj", 0.01, [0, 0, 0], 90, 0, 180)
         # os.chdir('../../')
 
-        # os.chdir('./materials/NCC-1701/')
-        # self.ship = Model("NCC-1701_modified.obj", 1.2, [0, 0, 0], 90, 0, 180)
-        # os.chdir('../../')
-
-        # os.chdir('./materials/millenium-falcon/')
-        # self.ship = Model("millenium-falcon_modified.obj", 1, [0, 0, 0], 90, 0, 0, using_left=True)
-        # os.chdir('../../')
-
         for i in range(MAX_DISPLAY_AST):
             self.add_ast(isInit=True)
         self.ship_collider = Sphere(
@@ -119,17 +111,18 @@ class Game(object):
                 # elif e.type == pygame.USEREVENT + 3 and self.isplaying and fps > 24 and not self.paused:
                 #     self.add_ast()
 
-
             """ Control & Display update """
+            isCollision = False
             if not self.paused:
                 if self.isplaying:
                     for ast in self.asteroids:
                         if method.collision_detection(self.ship_collider, ast):
                             self.shield -= 1
+                            isCollision = True
                             if self.shield <= 0:  # GAME OVER
                                 self.init_properties()
                                 self.ship.pos = [0, 0, 0]
-                        if ast.pos[1] < -20:  # Reset Ast Pos
+                        if ast.pos[1] < AST_RST_POS:  # Reset Ast Pos
                             ast.pos[0] = random.uniform(
                                 self.ship.pos[0] - AST_RANGE, self.ship.pos[0] + AST_RANGE)
                             ast.pos[1] = random.randint(AST_Y_MIN, AST_Y_MAX)
@@ -138,75 +131,81 @@ class Game(object):
                         else:
                             ast.pos[1] -= HARD_AST_INIT * delta_time
                         if ENABLE_AST_MOVING:
-                            ast.pos[0] += ast.jiggle_speed[0]
-                            ast.pos[1] += ast.jiggle_speed[1]
-                            ast.pos[2] += ast.jiggle_speed[2]
+                            ast.pos[0] += ast.move_speed[0]
+                            ast.pos[1] += ast.move_speed[1]
+                            ast.pos[2] += ast.move_speed[2]
                         ast.rotate()
 
-                    method.ship_update(self.ship, self.ship_speed, self.lean_speed, delta_time)
+                    method.ship_update(
+                        self.ship, self.ship_speed, self.lean_speed, delta_time)
                     self.ship_collider.pos = self.ship.pos[:]
-                    self.display(delta_time)
-                    method.draw_text([40, self.win_h - 50], str(self.score), 30)
-                    method.draw_text([self.win_w - 130, self.win_h - 50], "FPS: " + str(fps), 30)
-                    method.draw_text([int(self.win_w / 2 - 200), self.win_h - 60],
-                                     "Shield: " + ">" * self.shield, 30, False, (92, 207, 230))
+                    self.display(delta_time, isCollision)
+                    method.draw_text([40, self.win_h - 50],
+                                     str(self.score), 30)
+                    method.draw_text(
+                        [self.win_w - 130, self.win_h - 50], "FPS: " + str(fps), 30)
+                    method.draw_text([int(self.win_w / 2), self.win_h - 60], "Shield: " + ">" * self.shield \
+                        + "  " * (HARD_INIT_SHIELD - self.shield), 30, True, (92, 207, 230))
 
                 else:  # Start or Game Over
                     self.start_screen(delta_time, self.ast_speed)
-                    method.draw_text([40, 40], "Esc to exit",
+                    method.draw_text([40, 40], "Press Esc/Q to exit",
                                      25, False, (255, 0, 0))
                     if has_played:  # Game Over
                         method.draw_text([int(self.win_w / 2), int(self.win_h / 3 * 2)],
                                          "Game Over", 60, True, (255, 174, 87))
                         method.draw_text([int(self.win_w / 2), int(self.win_h / 3)],
-                                         "You scored: " + str(self.score), 40, True)
+                                         "Your score: " + str(self.score), 40, True)
                     method.draw_text(
                         [int(self.win_w / 2), int(self.win_h / 2)], "Press space to start", 50, True)
                 clock.tick(CLK_TICK)
                 pygame.display.flip()
             else:
                 if self.isRoaming:  # Paused and Roaming
-                    self.camera.roam(event_list)
+                    self.camera.roam(event_list, isCollision)
                     self.display(delta_time)
                     method.draw_text([int(self.win_w / 2), int(self.win_h / 5 * 4)],
-                                        "Roaming...", 40, True, (255, 174, 87))
+                                     "Roaming...", 40, True, (255, 174, 87))
                     clock.tick(CLK_TICK)
                     pygame.display.flip()
                 else:  # Just paused
                     method.draw_text([int(self.win_w / 2), int(self.win_h / 3 * 2)],
-                                        "Paused", 60, True, (255, 174, 87))
+                                     "Paused", 60, True, (255, 174, 87))
 
-
-
-    def display(self, delta_time):
-        """Refreshing screen, clearing buffers, and redrawing objects"""  # Ciscenje medjuspremnika i ponovno crtanje objekata
+    def display(self, delta_time, isCollision=False):
         gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
         gl.glMatrixMode(gl.GL_PROJECTION)
         gl.glLoadIdentity()
         glu.gluPerspective(VIEW_ANGLE, self.win_w / self.win_h, 0.1, 10000)
 
         if self.isRoaming:
-            ctx = self.camera.eyex + sin(self.camera.polarAngle * D2R) * cos(self.camera.azimuthAngle * D2R)
-            cty = self.camera.eyey + sin(self.camera.polarAngle * D2R) * sin(self.camera.azimuthAngle * D2R)
-            ctz = self.camera.eyez + cos(self.camera.polarAngle * D2R);
-            upx = -cos(self.camera.polarAngle * D2R) * cos(self.camera.azimuthAngle * D2R)
-            upy = -cos(self.camera.polarAngle * D2R) * sin(self.camera.azimuthAngle * D2R)
+            ctx = self.camera.eyex + \
+                sin(self.camera.polarAngle * D2R) * \
+                cos(self.camera.azimuthAngle * D2R)
+            cty = self.camera.eyey + \
+                sin(self.camera.polarAngle * D2R) * \
+                sin(self.camera.azimuthAngle * D2R)
+            ctz = self.camera.eyez + cos(self.camera.polarAngle * D2R)
+            upx = -cos(self.camera.polarAngle * D2R) * \
+                cos(self.camera.azimuthAngle * D2R)
+            upy = -cos(self.camera.polarAngle * D2R) * \
+                sin(self.camera.azimuthAngle * D2R)
             upz = sin(self.camera.polarAngle * D2R)
             glu.gluLookAt(self.camera.eyex, self.camera.eyey, self.camera.eyez,
                           ctx, cty, ctz,
                           upx, upy, upz)
         else:
-            self.camera.update(self.ship)
+            self.camera.update(self.ship, isCollision)
             if self.fps_view:
                 glu.gluLookAt(self.ship.pos[0], self.ship.pos[1], self.ship.pos[2],
-                            self.ship.pos[0], self.ship.pos[1] +
-                            100, self.ship.pos[2],
-                            0, 0, 1)
+                              self.ship.pos[0], self.ship.pos[1] +
+                              100, self.ship.pos[2],
+                              0, 0, 1)
             else:
                 glu.gluLookAt(self.camera.eyex, self.camera.eyey, self.camera.eyez + 3,
-                            self.ship.pos[0], self.ship.pos[1] +
-                            100, self.ship.pos[2],
-                            0, 0, 1)
+                              self.ship.pos[0], self.ship.pos[1] +
+                              100, self.ship.pos[2],
+                              0, 0, 1)
         self.skybox.sky_pos = self.ship.pos
 
         gl.glMatrixMode(gl.GL_MODELVIEW)
@@ -236,7 +235,6 @@ class Game(object):
         self.light.render()
 
     def start_screen(self, delta_time, speed):
-        """Updating a welcome screen (like a screensaver)"""
         gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
         gl.glMatrixMode(gl.GL_PROJECTION)
         gl.glLoadIdentity()
@@ -261,7 +259,6 @@ class Game(object):
         self.light.render()
 
     def add_ast(self, isInit=False):
-        """Adding asteroids to a random pos near the ship"""
         size = random.randint(AST_MIN_SIZE, AST_MAX_SIZE)
         pos_x = random.randint(
             self.ship.pos[0] - AST_RANGE, self.ship.pos[0] + AST_RANGE)
@@ -272,8 +269,7 @@ class Game(object):
 
         self.asteroids.append(Model("materials/ast_lowpoly2/ast_lowpoly2.obj", size, [
                               pos_x, pos_y, pos_z], random.randint(0, 360), random.randint(0, 360), random.randint(0, 360), False,
-                              [random.randint(-AST_MOVE_RANGE, AST_MOVE_RANGE), random.randint(-AST_MOVE_RANGE, AST_MOVE_RANGE),
-                              random.randint(-AST_MOVE_RANGE, AST_MOVE_RANGE)], random.randint(-AST_ROT_RANGE, AST_ROT_RANGE)))
+            [random.randint(-AST_MOVE_RANGE, AST_MOVE_RANGE), random.randint(-AST_MOVE_RANGE, AST_MOVE_RANGE),
+             random.randint(-AST_MOVE_RANGE, AST_MOVE_RANGE)], random.randint(-AST_ROT_RANGE, AST_ROT_RANGE)))
         if len(self.asteroids) > MAX_DISPLAY_AST:
             self.asteroids.popleft()
- 

@@ -9,8 +9,8 @@ class Sphere(object):
         self.pos = pos[:]
         self.visible = visible
         self.color = color
-        self.slices = 25  # meridijani
-        self.stacks = 15  # paralele
+        self.slices = 25
+        self.stacks = 15
         self.quadric = glu.gluNewQuadric()
 
     def render(self):
